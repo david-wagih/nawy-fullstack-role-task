@@ -55,6 +55,7 @@ export default function ApartmentsPage() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [editInitial, setEditInitial] = useState<any>(null);
+  const [editId, setEditId] = useState<string | null>(null);
 
   // Deletion dialog state
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -135,18 +136,17 @@ export default function ApartmentsPage() {
       price: String(apt.price),
       description: apt.description,
     });
+    setEditId(id);
     setEditOpen(true);
   };
 
   const handleEditApartment = async (values: any) => {
-    if (!editInitial) return;
+    if (!editId) return;
     setEditLoading(true);
     setEditError(null);
     try {
-      const apt = apartments.find(a => a.unitNumber === values.unitNumber && a.unitName === values.unitName);
-      if (!apt) throw new Error("Apartment not found");
       await dispatch(updateApartment({
-        id: apt.id,
+        id: editId,
         updates: {
           ...values,
           bedrooms: Number(values.bedrooms),
@@ -155,6 +155,7 @@ export default function ApartmentsPage() {
         },
       }) as any);
       setEditOpen(false);
+      setEditId(null);
     } catch (err: any) {
       setEditError(err.message || "Failed to update apartment");
     } finally {
