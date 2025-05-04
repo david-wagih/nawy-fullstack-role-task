@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CreateApartmentDto } from './dto/create-apartment.dto';
 import { UpdateApartmentDto } from './dto/update-apartment.dto';
-import { PrismaClient } from '../../generated/prisma';
-
-const prisma = new PrismaClient();
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ApartmentService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async create(createApartmentDto: CreateApartmentDto) {
-    return prisma.apartment.create({ data: createApartmentDto });
+    return this.prisma.apartment.create({ data: createApartmentDto });
   }
 
   async findAll(search?: string) {
     if (search) {
-      return prisma.apartment.findMany({
+      return this.prisma.apartment.findMany({
         where: {
           OR: [
             { unitName: { contains: search, mode: 'insensitive' } },
@@ -23,18 +23,18 @@ export class ApartmentService {
         },
       });
     }
-    return prisma.apartment.findMany();
+    return this.prisma.apartment.findMany();
   }
 
   async findOne(id: string) {
-    return prisma.apartment.findUnique({ where: { id } });
+    return this.prisma.apartment.findUnique({ where: { id } });
   }
 
   async update(id: string, updateApartmentDto: UpdateApartmentDto) {
-    return prisma.apartment.update({ where: { id }, data: updateApartmentDto });
+    return this.prisma.apartment.update({ where: { id }, data: updateApartmentDto });
   }
 
   async remove(id: string) {
-    return prisma.apartment.delete({ where: { id } });
+    return this.prisma.apartment.delete({ where: { id } });
   }
 }
