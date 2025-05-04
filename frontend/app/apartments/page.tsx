@@ -114,9 +114,11 @@ export default function ApartmentsPage() {
         bathrooms: Number(values.bathrooms),
         price: Number(values.price),
       }) as any);
+      toast.success("Apartment added successfully");
       setAddOpen(false);
     } catch (err: any) {
       setAddError(err.message || "Failed to add apartment");
+      toast.error(err.message || "Failed to add apartment");
     } finally {
       setAddLoading(false);
     }
@@ -154,10 +156,12 @@ export default function ApartmentsPage() {
           price: Number(values.price),
         },
       }) as any);
+      toast.success("Apartment updated successfully");
       setEditOpen(false);
       setEditId(null);
     } catch (err: any) {
       setEditError(err.message || "Failed to update apartment");
+      toast.error(err.message || "Failed to update apartment");
     } finally {
       setEditLoading(false);
     }
