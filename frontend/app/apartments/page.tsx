@@ -12,7 +12,7 @@ import {
   selectApartments,
   selectApartmentsLoading,
   selectApartmentsError,
-} from "../../store";
+} from "../../store/store";
 
 const PAGE_SIZE = 6;
 

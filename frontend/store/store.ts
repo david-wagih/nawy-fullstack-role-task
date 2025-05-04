@@ -1,4 +1,4 @@
-import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { configureStore, createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
 
@@ -10,6 +10,40 @@ export const fetchApartments = createAsyncThunk<Apartment[]>(
     const res = await fetch(`${BASE_URL}/apartments`);
     const data = await res.json();
     return data.data || [];
+  }
+);
+
+export const createApartment = createAsyncThunk<Apartment, Partial<Apartment>>(
+  'apartments/create',
+  async (apartment) => {
+    const res = await fetch(`${BASE_URL}/apartments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(apartment),
+    });
+    const data = await res.json();
+    return data.data;
+  }
+);
+
+export const updateApartment = createAsyncThunk<Apartment, { id: string; updates: Partial<Apartment> }>(
+  'apartments/update',
+  async ({ id, updates }) => {
+    const res = await fetch(`${BASE_URL}/apartments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    const data = await res.json();
+    return data.data;
+  }
+);
+
+export const deleteApartment = createAsyncThunk<string, string>(
+  'apartments/delete',
+  async (id) => {
+    await fetch(`${BASE_URL}/apartments/${id}`, { method: 'DELETE' });
+    return id;
   }
 );
 
@@ -34,6 +68,16 @@ const apartmentsSlice = createSlice({
       .addCase(fetchApartments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch apartments';
+      })
+      .addCase(createApartment.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+      })
+      .addCase(updateApartment.fulfilled, (state, action) => {
+        const idx = state.items.findIndex(a => a.id === action.payload.id);
+        if (idx !== -1) state.items[idx] = action.payload;
+      })
+      .addCase(deleteApartment.fulfilled, (state, action) => {
+        state.items = state.items.filter(a => a.id !== action.payload);
       });
   },
 });
