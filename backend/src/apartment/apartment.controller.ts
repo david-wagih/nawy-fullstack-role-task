@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, NotFoundException } from '@nestjs/common';
 import { ApartmentService } from './apartment.service';
 import { CreateApartmentDto } from './dto/create-apartment.dto';
 import { UpdateApartmentDto } from './dto/update-apartment.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { ApiResponse } from './entities/apartment.entity';
 
 @ApiTags('apartments')
 @Controller('apartments')
@@ -11,7 +12,7 @@ export class ApartmentController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new apartment' })
-  @ApiResponse({ status: 201, description: 'Apartment created successfully.' })
+  @SwaggerApiResponse({ status: 201, description: 'Apartment created successfully.' })
   @ApiBody({
     type: CreateApartmentDto,
     examples: {
@@ -30,30 +31,36 @@ export class ApartmentController {
       },
     },
   })
-  create(@Body() createApartmentDto: CreateApartmentDto) {
-    return this.apartmentService.create(createApartmentDto);
+  async create(@Body() createApartmentDto: CreateApartmentDto) {
+    const data = await this.apartmentService.create(createApartmentDto);
+    return new ApiResponse(201, 'Apartment created successfully', data);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all apartments or search by unitName, unitNumber, or project' })
   @ApiQuery({ name: 'search', required: false, description: 'Search by unitName, unitNumber, or project' })
-  @ApiResponse({ status: 200, description: 'List of apartments.' })
-  findAll(@Query('search') search?: string) {
-    return this.apartmentService.findAll(search);
+  @SwaggerApiResponse({ status: 200, description: 'List of apartments.' })
+  async findAll(@Query('search') search?: string) {
+    const data = await this.apartmentService.findAll(search);
+    return new ApiResponse(200, 'Apartments fetched successfully', data);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get apartment by ID' })
-  @ApiResponse({ status: 200, description: 'Apartment details.' })
-  @ApiResponse({ status: 404, description: 'Apartment not found.' })
-  findOne(@Param('id') id: string) {
-    return this.apartmentService.findOne(id);
+  @SwaggerApiResponse({ status: 200, description: 'Apartment details.' })
+  @SwaggerApiResponse({ status: 404, description: 'Apartment not found.' })
+  async findOne(@Param('id') id: string) {
+    const data = await this.apartmentService.findOne(id);
+    if (!data) {
+      throw new NotFoundException(new ApiResponse(404, 'Apartment not found', null));
+    }
+    return new ApiResponse(200, 'Apartment fetched successfully', data);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an apartment by ID' })
-  @ApiResponse({ status: 200, description: 'Apartment updated.' })
-  @ApiResponse({ status: 404, description: 'Apartment not found.' })
+  @SwaggerApiResponse({ status: 200, description: 'Apartment updated.' })
+  @SwaggerApiResponse({ status: 404, description: 'Apartment not found.' })
   @ApiBody({
     type: UpdateApartmentDto,
     examples: {
@@ -66,15 +73,23 @@ export class ApartmentController {
       },
     },
   })
-  update(@Param('id') id: string, @Body() updateApartmentDto: UpdateApartmentDto) {
-    return this.apartmentService.update(id, updateApartmentDto);
+  async update(@Param('id') id: string, @Body() updateApartmentDto: UpdateApartmentDto) {
+    const data = await this.apartmentService.update(id, updateApartmentDto);
+    if (!data) {
+      throw new NotFoundException(new ApiResponse(404, 'Apartment not found', null));
+    }
+    return new ApiResponse(200, 'Apartment updated successfully', data);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an apartment by ID' })
-  @ApiResponse({ status: 200, description: 'Apartment deleted.' })
-  @ApiResponse({ status: 404, description: 'Apartment not found.' })
-  remove(@Param('id') id: string) {
-    return this.apartmentService.remove(id);
+  @SwaggerApiResponse({ status: 200, description: 'Apartment deleted.' })
+  @SwaggerApiResponse({ status: 404, description: 'Apartment not found.' })
+  async remove(@Param('id') id: string) {
+    const data = await this.apartmentService.remove(id);
+    if (!data) {
+      throw new NotFoundException(new ApiResponse(404, 'Apartment not found', null));
+    }
+    return new ApiResponse(200, 'Apartment deleted successfully', data);
   }
 }

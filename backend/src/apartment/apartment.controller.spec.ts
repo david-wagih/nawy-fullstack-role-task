@@ -3,6 +3,7 @@ import { ApartmentController } from './apartment.controller';
 import { ApartmentService } from './apartment.service';
 import { CreateApartmentDto } from './dto/create-apartment.dto';
 import { UpdateApartmentDto } from './dto/update-apartment.dto';
+import { ApiResponse } from './entities/apartment.entity';
 
 describe('ApartmentController', () => {
   let controller: ApartmentController;
@@ -57,12 +58,14 @@ describe('ApartmentController', () => {
       price: 1000,
       description: 'Nice apartment',
     };
-    expect(await controller.create(dto)).toEqual(mockApartment);
+    const result = await controller.create(dto);
+    expect(result).toEqual(new ApiResponse(201, 'Apartment created successfully', mockApartment));
     expect(service.create).toHaveBeenCalledWith(dto);
   });
 
   it('should return all apartments', async () => {
-    expect(await controller.findAll()).toEqual([mockApartment]);
+    const result = await controller.findAll();
+    expect(result).toEqual(new ApiResponse(200, 'Apartments fetched successfully', [mockApartment]));
     expect(service.findAll).toHaveBeenCalledWith(undefined);
   });
 
@@ -72,18 +75,21 @@ describe('ApartmentController', () => {
   });
 
   it('should return an apartment by id', async () => {
-    expect(await controller.findOne('1')).toEqual(mockApartment);
+    const result = await controller.findOne('1');
+    expect(result).toEqual(new ApiResponse(200, 'Apartment fetched successfully', mockApartment));
     expect(service.findOne).toHaveBeenCalledWith('1');
   });
 
   it('should update an apartment', async () => {
     const dto: UpdateApartmentDto = { price: 1200 };
-    expect(await controller.update('1', dto)).toEqual({ ...mockApartment, price: 1200 });
+    const result = await controller.update('1', dto);
+    expect(result).toEqual(new ApiResponse(200, 'Apartment updated successfully', { ...mockApartment, price: 1200 }));
     expect(service.update).toHaveBeenCalledWith('1', dto);
   });
 
   it('should delete an apartment', async () => {
-    expect(await controller.remove('1')).toEqual(mockApartment);
+    const result = await controller.remove('1');
+    expect(result).toEqual(new ApiResponse(200, 'Apartment deleted successfully', mockApartment));
     expect(service.remove).toHaveBeenCalledWith('1');
   });
 });
