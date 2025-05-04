@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ApartmentsFilters from "@/components/apartments/ApartmentsFilters";
 import ApartmentsGrid from "@/components/apartments/ApartmentsGrid";
 import ApartmentsPagination from "@/components/apartments/ApartmentsPagination";
+import ApartmentFormDialog from "@/components/apartments/ApartmentFormDialog";
 import {
   useAppDispatch,
   useAppSelector,
@@ -12,7 +13,8 @@ import {
   selectApartments,
   selectApartmentsLoading,
   selectApartmentsError,
-} from "../../store/store";
+} from "@/store/store";
+import { createApartment } from "@/store/store";
 
 const PAGE_SIZE = 6;
 
@@ -27,6 +29,11 @@ export default function ApartmentsPage() {
   const [bedrooms, setBedrooms] = useState("");
   const [project, setProject] = useState("");
   const [page, setPage] = useState(1);
+
+  // Add Apartment Dialog state
+  const [addOpen, setAddOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchApartments());
@@ -70,12 +77,38 @@ export default function ApartmentsPage() {
     return Array.from(set).filter(Boolean).sort((a, b) => a - b);
   }, [apartments]);
 
+  // Handle add apartment submit
+  const handleAddApartment = async (values: any) => {
+    setAddLoading(true);
+    setAddError(null);
+    try {
+      await dispatch(createApartment({
+        ...values,
+        bedrooms: Number(values.bedrooms),
+        bathrooms: Number(values.bathrooms),
+        price: Number(values.price),
+      }) as any);
+      setAddOpen(false);
+    } catch (err: any) {
+      setAddError(err.message || "Failed to add apartment");
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Apartments</h1>
-        <Button>Add Apartment</Button>
+        <Button onClick={() => setAddOpen(true)}>Add Apartment</Button>
       </div>
+      <ApartmentFormDialog
+        open={addOpen}
+        setOpen={setAddOpen}
+        onSubmit={handleAddApartment}
+        loading={addLoading}
+        error={addError}
+      />
       <ApartmentsFilters
         search={search}
         setSearch={(v) => { setSearch(v); setPage(1); }}

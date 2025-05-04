@@ -11,3 +11,14 @@ interface Apartment {
     createdAt: string;
     updatedAt: string;
   }
+
+  interface ApartmentFormValues {
+    unitName: string;
+    unitNumber: string;
+    project: string;
+    address: string;
+    bedrooms: string;
+    bathrooms: string;
+    price: string;
+    description: string;
+  }
