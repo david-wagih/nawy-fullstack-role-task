@@ -2,7 +2,7 @@
      db:
        image: postgres:17
        environment: 
-         POSTGRES_DB: app
+         POSTGRES_DB: apartmentDB
          POSTGRES_USER: user
          POSTGRES_PASSWORD: pass
        volumes:
@@ -12,9 +12,9 @@
        depends_on:
          - db
        environment:
-         DATABASE_URL: postgres://user:pass@db:5432/app
+         DATABASE_URL: postgres://user:pass@db:5432/apartmentDB
        ports:
-         - "4000:4000"
+         - "8080:8080"
      frontend:
        build: ./frontend
        depends_on:
