@@ -23,12 +23,12 @@ export default function ApartmentCard({ apartment, onEdit, onDelete }: Apartment
     <Card className="p-4 flex flex-col gap-2 shadow border border-gray-200 relative">
       <div className="absolute top-2 right-2 flex gap-1">
         {onEdit && (
-          <Button size="icon" variant="ghost" onClick={onEdit} aria-label="Edit Apartment">
+          <Button size="icon" variant="ghost" onClick={onEdit} aria-label="Edit Apartment" className="cursor-pointer">
             <Pencil className="w-4 h-4" />
           </Button>
         )}
         {onDelete && (
-          <Button size="icon" variant="ghost" onClick={onDelete} aria-label="Delete Apartment">
+          <Button size="icon" variant="ghost" onClick={onDelete} aria-label="Delete Apartment" className="cursor-pointer">
             <Trash className="w-4 h-4 text-red-500" />
           </Button>
         )}
