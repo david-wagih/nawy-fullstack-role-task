@@ -15,7 +15,7 @@ import {
   selectApartmentsError,
 } from "@/store/store";
 import { createApartment } from "@/store/store";
-
+import { Plus } from "lucide-react";
 const PAGE_SIZE = 6;
 
 export default function ApartmentsPage() {
@@ -100,7 +100,14 @@ export default function ApartmentsPage() {
     <div className="max-w-5xl mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Apartments</h1>
-        <Button onClick={() => setAddOpen(true)}>Add Apartment</Button>
+        <Button 
+          variant="outline"
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          Add Apartment
+        </Button>
       </div>
       <ApartmentFormDialog
         open={addOpen}
