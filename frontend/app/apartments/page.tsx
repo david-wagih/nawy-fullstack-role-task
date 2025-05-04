@@ -13,8 +13,10 @@ import {
   selectApartments,
   selectApartmentsLoading,
   selectApartmentsError,
+  createApartment,
+  updateApartment,
+  deleteApartment,
 } from "@/store/store";
-import { createApartment } from "@/store/store";
 import { Plus } from "lucide-react";
 const PAGE_SIZE = 6;
 
@@ -34,6 +36,12 @@ export default function ApartmentsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+
+  // Edit Apartment Dialog state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editInitial, setEditInitial] = useState<any>(null);
 
   useEffect(() => {
     dispatch(fetchApartments());
@@ -96,6 +104,53 @@ export default function ApartmentsPage() {
     }
   };
 
+  // Handle edit apartment
+  const handleEdit = (id: string) => {
+    const apt = apartments.find(a => a.id === id);
+    if (!apt) return;
+    setEditInitial({
+      unitName: apt.unitName,
+      unitNumber: apt.unitNumber,
+      project: apt.project,
+      address: apt.address,
+      bedrooms: String(apt.bedrooms),
+      bathrooms: String(apt.bathrooms),
+      price: String(apt.price),
+      description: apt.description,
+    });
+    setEditOpen(true);
+  };
+
+  const handleEditApartment = async (values: any) => {
+    if (!editInitial) return;
+    setEditLoading(true);
+    setEditError(null);
+    try {
+      const apt = apartments.find(a => a.unitNumber === values.unitNumber && a.unitName === values.unitName);
+      if (!apt) throw new Error("Apartment not found");
+      await dispatch(updateApartment({
+        id: apt.id,
+        updates: {
+          ...values,
+          bedrooms: Number(values.bedrooms),
+          bathrooms: Number(values.bathrooms),
+          price: Number(values.price),
+        },
+      }) as any);
+      setEditOpen(false);
+    } catch (err: any) {
+      setEditError(err.message || "Failed to update apartment");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // Handle delete apartment
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this apartment?")) return;
+    await dispatch(deleteApartment(id) as any);
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
@@ -115,6 +170,14 @@ export default function ApartmentsPage() {
         onSubmit={handleAddApartment}
         loading={addLoading}
         error={addError}
+      />
+      <ApartmentFormDialog
+        open={editOpen}
+        setOpen={setEditOpen}
+        onSubmit={handleEditApartment}
+        loading={editLoading}
+        error={editError}
+        initialValues={editInitial}
       />
       <ApartmentsFilters
         search={search}
@@ -138,7 +201,11 @@ export default function ApartmentsPage() {
         <div className="text-gray-500">No apartments found.</div>
       ) : (
         <>
-          <ApartmentsGrid apartments={paginated} />
+          <ApartmentsGrid
+            apartments={paginated}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
           <div className="flex justify-center mt-8">
             <ApartmentsPagination page={page} setPage={setPage} totalPages={totalPages} />
           </div>

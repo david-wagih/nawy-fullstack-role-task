@@ -12,13 +12,20 @@ export interface ApartmentsGridProps {
     price: number;
     description: string;
   }>;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function ApartmentsGrid({ apartments }: ApartmentsGridProps) {
+export default function ApartmentsGrid({ apartments, onEdit, onDelete }: ApartmentsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {apartments.map((apt) => (
-        <ApartmentCard key={apt.id} apartment={apt} />
+        <ApartmentCard
+          key={apt.id}
+          apartment={apt}
+          onEdit={onEdit ? () => onEdit(apt.id) : undefined}
+          onDelete={onDelete ? () => onDelete(apt.id) : undefined}
+        />
       ))}
     </div>
   );
