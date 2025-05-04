@@ -1,0 +1,25 @@
+   services:
+     db:
+       image: postgres:17
+       environment: 
+         POSTGRES_DB: app
+         POSTGRES_USER: user
+         POSTGRES_PASSWORD: pass
+       volumes:
+         - db-data:/var/lib/postgresql/data
+     backend:
+       build: ./backend
+       depends_on:
+         - db
+       environment:
+         DATABASE_URL: postgres://user:pass@db:5432/app
+       ports:
+         - "4000:4000"
+     frontend:
+       build: ./frontend
+       depends_on:
+         - backend
+       ports:
+         - "3000:3000"
+   volumes:
+     db-data:
