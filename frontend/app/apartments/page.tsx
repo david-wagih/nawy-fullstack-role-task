@@ -18,6 +18,19 @@ import {
   deleteApartment,
 } from "@/store/store";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 const PAGE_SIZE = 6;
 
 export default function ApartmentsPage() {
@@ -42,6 +55,10 @@ export default function ApartmentsPage() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [editInitial, setEditInitial] = useState<any>(null);
+
+  // Deletion dialog state
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchApartments());
@@ -146,9 +163,22 @@ export default function ApartmentsPage() {
   };
 
   // Handle delete apartment
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this apartment?")) return;
-    await dispatch(deleteApartment(id) as any);
+  const handleDelete = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    setDeleteLoading(true);
+    try {
+      await dispatch(deleteApartment(deleteId) as any);
+      toast.success("Apartment deleted successfully");
+      setDeleteId(null);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete apartment");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -164,6 +194,24 @@ export default function ApartmentsPage() {
           Add Apartment
         </Button>
       </div>
+      <AlertDialog open={!!deleteId} onOpenChange={(open: boolean) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Apartment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this apartment? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading} onClick={() => setDeleteId(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction disabled={deleteLoading} onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              {deleteLoading ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <ApartmentFormDialog
         open={addOpen}
         setOpen={setAddOpen}
