@@ -1,29 +1,54 @@
-# Stage 1: Build
-FROM node:20-alpine AS builder
+# syntax=docker/dockerfile:1
 
+ARG NODE_VERSION=22.13.1
+
+###########################
+# Build Stage
+###########################
+FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
+# Install dependencies (with cache and bind mounts for speed and determinism)
+COPY --link package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    npm ci
 
-COPY . .
+# Copy source files (excluding .env, .git, etc. via .dockerignore)
+COPY --link . .
+
+# Build the TypeScript app
 RUN npm run build
 
-# Stage 2: Production image
-FROM node:20-alpine
+# Remove dev dependencies and keep only production deps
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    npm prune --production
 
+###########################
+# Production Stage
+###########################
+FROM node:${NODE_VERSION}-slim AS final
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+# Create non-root user
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# If you use Prisma migrations in production, uncomment the next line:
-# RUN npx prisma generate
+# Copy built app and production dependencies
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/generated ./generated
 
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-EXPOSE 3000
+EXPOSE 8080
+
+USER appuser
 
 CMD ["node", "dist/main"]

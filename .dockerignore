@@ -1,0 +1,63 @@
+# Node.js dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+
+# Test and coverage artifacts
+test/
+tests/
+coverage/
+*.spec.*
+*.test.*
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# Environment and secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+
+# Local configuration and temp files
+.local/
+local/
+tmp/
+temp/
+*.tmp
+config.local.*
+*.local.yml
+
+# Documentation
+README*
+*.md
+docs/
+
+# Debug and log files
+*.log
+debug/
+
+# Docker files
+docker-compose*
+Dockerfile*
+
+# Project-specific generated code
+generated/
+
+# Miscellaneous
+*.DS_Store
