@@ -1,25 +1,31 @@
-   services:
-     db:
-       image: postgres:17
-       environment: 
-         POSTGRES_DB: apartmentDB
-         POSTGRES_USER: user
-         POSTGRES_PASSWORD: pass
-       volumes:
-         - db-data:/var/lib/postgresql/data
-     backend:
-       build: ./backend
-       depends_on:
-         - db
-       environment:
-         DATABASE_URL: postgres://user:pass@db:5432/apartmentDB
-       ports:
-         - "8080:8080"
-     frontend:
-       build: ./frontend
-       depends_on:
-         - backend
-       ports:
-         - "3000:3000"
-   volumes:
-     db-data:
+services:
+  db:
+    image: postgres:15-alpine
+    environment: 
+      POSTGRES_DB: apartmentDB
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://user:pass@db:5432/apartmentDB
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:3000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+volumes:
+  db-data:

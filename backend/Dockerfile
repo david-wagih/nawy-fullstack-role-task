@@ -20,7 +20,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
 # If you use Prisma migrations in production, uncomment the next line:
-RUN npx prisma generate
+# RUN npx prisma generate
 
 ENV NODE_ENV=production
 
