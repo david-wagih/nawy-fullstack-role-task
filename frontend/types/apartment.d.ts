@@ -1,4 +1,4 @@
-interface Apartment {
+export interface Apartment {
     id: string;
     unitName: string;
     unitNumber: string;
@@ -12,7 +12,7 @@ interface Apartment {
     updatedAt: string;
   }
 
-  interface ApartmentFormValues {
+  export interface ApartmentFormValues {
     unitName: string;
     unitNumber: string;
     project: string;

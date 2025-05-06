@@ -21,7 +21,6 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -30,6 +29,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { ApartmentFormValues } from "@/types/apartment";
 
 const PAGE_SIZE = 6;
 
@@ -54,7 +54,7 @@ export default function ApartmentsPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
-  const [editInitial, setEditInitial] = useState<any>(null);
+  const [editInitial, setEditInitial] = useState<Partial<ApartmentFormValues> | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
 
   // Deletion dialog state
@@ -104,7 +104,7 @@ export default function ApartmentsPage() {
   }, [apartments]);
 
   // Handle add apartment submit
-  const handleAddApartment = async (values: any) => {
+  const handleAddApartment = async (values: ApartmentFormValues) => {
     setAddLoading(true);
     setAddError(null);
     try {
@@ -113,12 +113,12 @@ export default function ApartmentsPage() {
         bedrooms: Number(values.bedrooms),
         bathrooms: Number(values.bathrooms),
         price: Number(values.price),
-      }) as any);
+      }));
       toast.success("Apartment added successfully");
       setAddOpen(false);
-    } catch (err: any) {
-      setAddError(err.message || "Failed to add apartment");
-      toast.error(err.message || "Failed to add apartment");
+    } catch (err: unknown) {
+      setAddError(err instanceof Error ? err.message : "Failed to add apartment");
+      toast.error(err instanceof Error ? err.message : "Failed to add apartment");
     } finally {
       setAddLoading(false);
     }
@@ -142,7 +142,7 @@ export default function ApartmentsPage() {
     setEditOpen(true);
   };
 
-  const handleEditApartment = async (values: any) => {
+  const handleEditApartment = async (values: ApartmentFormValues) => {
     if (!editId) return;
     setEditLoading(true);
     setEditError(null);
@@ -155,13 +155,13 @@ export default function ApartmentsPage() {
           bathrooms: Number(values.bathrooms),
           price: Number(values.price),
         },
-      }) as any);
+      }));
       toast.success("Apartment updated successfully");
       setEditOpen(false);
       setEditId(null);
-    } catch (err: any) {
-      setEditError(err.message || "Failed to update apartment");
-      toast.error(err.message || "Failed to update apartment");
+    } catch (err: unknown) {
+      setEditError(err instanceof Error ? err.message : "Failed to update apartment");
+      toast.error(err instanceof Error ? err.message : "Failed to update apartment");
     } finally {
       setEditLoading(false);
     }
@@ -176,11 +176,11 @@ export default function ApartmentsPage() {
     if (!deleteId) return;
     setDeleteLoading(true);
     try {
-      await dispatch(deleteApartment(deleteId) as any);
+      await dispatch(deleteApartment(deleteId));
       toast.success("Apartment deleted successfully");
       setDeleteId(null);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete apartment");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete apartment");
     } finally {
       setDeleteLoading(false);
     }
@@ -230,7 +230,7 @@ export default function ApartmentsPage() {
         onSubmit={handleEditApartment}
         loading={editLoading}
         error={editError}
-        initialValues={editInitial}
+        initialValues={editInitial as Partial<ApartmentFormValues> | undefined}
       />
       <ApartmentsFilters
         search={search}

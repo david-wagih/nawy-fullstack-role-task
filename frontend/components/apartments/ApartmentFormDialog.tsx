@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ApartmentFormValues } from "@/types/apartment";
 
 
 
@@ -35,24 +36,20 @@ export default function ApartmentFormDialog({
   initialValues = {},
 }: ApartmentFormDialogProps) {
   const [values, setValues] = useState<ApartmentFormValues>({ ...defaultValues, ...initialValues });
-  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (open) {
       setValues({ ...defaultValues, ...initialValues });
-      setTouched(false);
     }
-    // Only depend on open (not initialValues) to avoid infinite loop
-  }, [open]);
+    // Only depend on open and initialValues to avoid infinite loop
+  }, [open, initialValues]);
 
   const handleChange = (field: keyof ApartmentFormValues, value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
-    setTouched(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched(true);
     if (!values.unitName || !values.unitNumber || !values.project || !values.address || !values.bedrooms || !values.bathrooms || !values.price) return;
     onSubmit(values);
   };

@@ -7,8 +7,9 @@ import { useAppDispatch } from "@/store/store";
 import { updateApartment, deleteApartment } from "@/store/store";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Apartment, ApartmentFormValues } from "@/types/apartment";
 
-export default function ApartmentDetailsClient({ apartment }: { apartment: any }) {
+export default function ApartmentDetailsClient({ apartment }: { apartment: Apartment }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
@@ -17,7 +18,7 @@ export default function ApartmentDetailsClient({ apartment }: { apartment: any }
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
-  const handleEdit = async (values: any) => {
+  const handleEdit = async (values: ApartmentFormValues) => {
     setEditLoading(true);
     setEditError(null);
     try {
@@ -29,12 +30,12 @@ export default function ApartmentDetailsClient({ apartment }: { apartment: any }
           bathrooms: Number(values.bathrooms),
           price: Number(values.price),
         },
-      }) as any);
+      }));
       toast.success("Apartment updated successfully");
       setEditOpen(false);
-    } catch (err: any) {
-      setEditError(err.message || "Failed to update apartment");
-      toast.error(err.message || "Failed to update apartment");
+    } catch (err: unknown) {
+      setEditError(err instanceof Error ? err.message : "Failed to update apartment");
+      toast.error(err instanceof Error ? err.message : "Failed to update apartment");
     } finally {
       setEditLoading(false);
     }
@@ -43,12 +44,12 @@ export default function ApartmentDetailsClient({ apartment }: { apartment: any }
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      await dispatch(deleteApartment(apartment.id) as any);
+      await dispatch(deleteApartment(apartment.id));
       toast.success("Apartment deleted successfully");
       setDeleteLoading(false);
       router.push("/apartments");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete apartment");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete apartment");
       setDeleteLoading(false);
     }
   };
