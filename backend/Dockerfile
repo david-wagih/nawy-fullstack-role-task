@@ -13,7 +13,7 @@ COPY --link package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    npm ci
+    npm install --legacy-peer-deps
 
 # Copy source files (excluding .env, .git, etc. via .dockerignore)
 COPY --link . .
