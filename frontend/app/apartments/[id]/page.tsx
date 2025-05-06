@@ -5,8 +5,8 @@ import ApartmentDetailsClient from "@/components/apartments/ApartmentDetails";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function ApartmentDetailsPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function ApartmentDetailsPage({ params }: { params:Promise<{ id: string }>}) {
+  const { id } = await params;
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apartments/${id}`, { cache: "no-store" });
   if (!res.ok) return notFound();
   const { data: apartment } = await res.json();
@@ -33,4 +33,4 @@ export default async function ApartmentDetailsPage({ params }: { params: { id: s
       </Card>
     </div>
   );
-} 
+}
