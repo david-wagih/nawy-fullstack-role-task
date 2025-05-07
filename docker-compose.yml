@@ -17,15 +17,15 @@ services:
       DATABASE_URL: postgres://user:pass@db:5432/apartmentDB
       NODE_ENV: production
     ports:
-      - "3000:3000"
+      - "8080:8080"
   frontend:
     build: ./frontend
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:3000
+      NEXT_PUBLIC_API_URL: http://backend:8080
       NODE_ENV: production
     ports:
-      - "3000:3000"
+      - "3001:3000"
 volumes:
   db-data:

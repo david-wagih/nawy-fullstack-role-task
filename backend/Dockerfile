@@ -8,24 +8,19 @@ ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Install dependencies (with cache and bind mounts for speed and determinism)
-COPY --link package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    npm install --legacy-peer-deps
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm install --legacy-peer-deps
 
 # Copy source files (excluding .env, .git, etc. via .dockerignore)
-COPY --link . .
+COPY . .
 
 # Build the TypeScript app
 RUN npm run build
 
-# Remove dev dependencies and keep only production deps
-RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    npm prune --production
+# Generate Prisma client
+RUN npx prisma generate
+
 
 ###########################
 # Production Stage
