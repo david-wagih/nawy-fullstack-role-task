@@ -1,45 +1,50 @@
-## Running the Project with Docker
+# Nawy Task
 
-This project is fully containerized and can be run using Docker Compose. Below are the project-specific instructions and requirements for running the backend and frontend services.
+## Project Structure
 
-### Requirements
-- **Docker** and **Docker Compose** installed on your system.
-- The Dockerfiles require **Node.js version 22.13.1** (as specified by `ARG NODE_VERSION=22.13.1`).
+### Backend (`/backend`)
+- **Framework:** NestJS
+- **Key Directories:**
+  - `src/`
+    - `apartment/`: Contains the main business logic for apartments, including controllers, services, DTOs, and entities.
+    - `prisma/`: Prisma schema and migration files for database management.
+    - `main.ts`, `app.module.ts`: Application entry point and root module.
+  - `prisma/schema.prisma`: Database schema definition.
+- **Other Files:**
+  - `Dockerfile`: For containerizing the backend.
+  - `package.json`: Dependencies and scripts.
 
-### Environment Variables
-- Each service uses its own `.env` file:
-  - **Backend:** `./backend/.env`
-  - **Frontend:** `./frontend/.env`
-- Ensure these files are present and configured before building the containers. The `docker-compose.yml` automatically loads them for each service.
-
-### Build and Run Instructions
-1. **Clone the repository** and ensure you have the required `.env` files in `./backend` and `./frontend`.
-2. **Build and start all services:**
-   ```sh
-   docker compose up --build
-   ```
-   This will build both the backend and frontend images and start the containers.
-
-### Service Details
-- **Backend (`ts-backend`):**
-  - Built from `./backend` directory
-  - Exposes port **8080** (mapped to host's 8080)
-  - Runs as a non-root user for security
-  - Loads environment variables from `./backend/.env`
-- **Frontend (`ts-frontend`):**
-  - Built from `./frontend` directory
-  - Exposes port **3000** (mapped to host's 3000)
-  - Runs as a non-root user for security
-  - Loads environment variables from `./frontend/.env`
-  - Depends on the backend service (starts after backend is up)
-
-### Networking
-- Both services are connected via a custom Docker network `app-network` for internal communication.
-
-### Special Configuration
-- The Dockerfiles are optimized for production: they build the app, prune dev dependencies, and run as non-root users.
-- If you need to add a database or other dependencies, update the `depends_on` section in `docker-compose.yml`.
+### Frontend (`/frontend`)
+- **Framework:** Next.js (TypeScript)
+- **UI Library:** [ShadCN UI](https://ui.shadcn.com/) — A set of beautifully-designed, accessible React components built on top of Tailwind CSS.
+- **Key Directories:**
+  - `app/`: Main application pages and layouts.
+    - `apartments/`: Apartment listing and detail pages.
+  - `components/`: Reusable UI and feature components.
+    - `apartments/`: Apartment-specific components (form, card, details, filters, etc.).
+    - `ui/`: Generic UI components (button, dialog, form, etc.).
+  - `store/`: State management logic.
+  - `types/`: TypeScript type definitions.
+- **Other Files:**
+  - `Dockerfile`: For containerizing the frontend.
+  - `package.json`: Dependencies and scripts.
 
 ---
 
-_Refer to the individual `README.md` files in `./backend` and `./frontend` for service-specific details._
+## Installation & Running (with Docker Compose)
+
+1. **Prerequisites:**  
+   - Docker and Docker Compose installed.
+
+2. **Setup & Run:**
+   ```sh
+   docker-compose up --build
+   ```
+   This will:
+   - Start a PostgreSQL database (`db` service).
+   - Build and run the backend (`backend` service) on port 8080.
+   - Build and run the frontend (`frontend` service) on port 3000.
+
+3. **Access:**
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend API: [http://localhost:8080](http://localhost:8080)
