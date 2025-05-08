@@ -1,4 +1,4 @@
-# Nawy Task
+# Nawy Full-Stack Task
 
 ## Project Structure
 
