@@ -7,6 +7,7 @@ ARG NODE_VERSION=22.13.1
 ###########################
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
+RUN apt-get update -y && apt-get install -y openssl
 
 # Install dependencies
 COPY package.json package-lock.json ./
@@ -24,6 +25,7 @@ RUN npm run build
 ###########################
 FROM node:${NODE_VERSION}-slim AS final
 WORKDIR /app
+RUN apt-get update -y && apt-get install -y openssl
 
 # Create non-root user
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
@@ -35,6 +37,7 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/generated ./generated
+RUN chown -R appuser:appgroup /app
 
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
