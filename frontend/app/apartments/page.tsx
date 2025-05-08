@@ -57,6 +57,9 @@ export default function ApartmentsPage() {
   const [editInitial, setEditInitial] = useState<Partial<ApartmentFormValues> | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
 
+  // Memoize editInitial to avoid infinite update loops
+  const memoizedEditInitial = useMemo(() => editInitial, [editInitial]);
+
   // Deletion dialog state
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -230,7 +233,7 @@ export default function ApartmentsPage() {
         onSubmit={handleEditApartment}
         loading={editLoading}
         error={editError}
-        initialValues={editInitial as Partial<ApartmentFormValues> | undefined}
+        initialValues={memoizedEditInitial as Partial<ApartmentFormValues> | undefined}
       />
       <ApartmentsFilters
         search={search}

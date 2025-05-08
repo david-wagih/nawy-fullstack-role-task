@@ -41,8 +41,8 @@ export default function ApartmentFormDialog({
     if (open) {
       setValues({ ...defaultValues, ...initialValues });
     }
-    // Only depend on open and initialValues to avoid infinite loop
-  }, [open, initialValues]);
+    // Only depend on open to avoid infinite loop
+  }, [open]);
 
   const handleChange = (field: keyof ApartmentFormValues, value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
