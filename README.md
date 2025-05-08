@@ -4,30 +4,48 @@
 
 ### Backend (`/backend`)
 - **Framework:** NestJS
-- **Key Directories:**
-  - `src/`
-    - `apartment/`: Contains the main business logic for apartments, including controllers, services, DTOs, and entities.
-    - `prisma/`: Prisma schema and migration files for database management.
-    - `main.ts`, `app.module.ts`: Application entry point and root module.
-  - `prisma/schema.prisma`: Database schema definition.
+- **Key Directories & Files:**
+  - `src/` — Main source code for the backend:
+    - `apartment/` — Contains the main business logic for apartments:
+      - `apartment.controller.ts` — Handles HTTP requests for apartments (CRUD operations).
+      - `apartment.service.ts` — Contains business logic and interacts with the database.
+      - `dto/` — Data Transfer Objects for validating and typing request payloads.
+      - `entities/` — Apartment entity definitions for type safety.
+    - `prisma/` — Prisma client setup and database connection logic.
+    - `main.ts` — Application entry point (bootstraps the NestJS app).
+    - `app.module.ts` — Root module that imports all feature modules.
+    - `app.controller.ts` / `app.service.ts` — Example root controller/service.
+  - `prisma/schema.prisma` — Database schema definition for Prisma ORM.
+  - `test/` — Contains backend unit and integration tests.
 - **Other Files:**
-  - `Dockerfile`: For containerizing the backend.
-  - `package.json`: Dependencies and scripts.
+  - `Dockerfile` — For containerizing the backend service.
+  - `package.json` — Backend dependencies and scripts.
+  - `.env` — Environment variables (not committed by default).
 
 ### Frontend (`/frontend`)
 - **Framework:** Next.js (TypeScript)
 - **UI Library:** [ShadCN UI](https://ui.shadcn.com/) — A set of beautifully-designed, accessible React components built on top of Tailwind CSS.
-- **Key Directories:**
-  - `app/`: Main application pages and layouts.
-    - `apartments/`: Apartment listing and detail pages.
-  - `components/`: Reusable UI and feature components.
-    - `apartments/`: Apartment-specific components (form, card, details, filters, etc.).
-    - `ui/`: Generic UI components (button, dialog, form, etc.).
-  - `store/`: State management logic.
-  - `types/`: TypeScript type definitions.
+- **Key Directories & Files:**
+  - `app/` — Main application pages and layouts:
+    - `apartments/` — Apartment listing and detail pages:
+      - `page.tsx` — Main apartments page (listing, add/edit, etc.).
+      - `[id]/page.tsx` — Dynamic route for apartment details.
+    - `layout.tsx` — Root layout for the app.
+    - `globals.css` / `layout.scss` — Global and layout-specific styles.
+  - `components/` — Reusable UI and feature components:
+    - `apartments/` — Apartment-specific components (form dialog, card, details, filters, pagination, etc.).
+    - `ui/` — Generic UI components (button, dialog, form, skeleton, etc.).
+    - `NavBar.tsx` — The main navigation bar.
+    - `Providers.tsx` — Context and provider setup for the app.
+  - `store/` — State management logic (Redux or similar):
+    - `store.ts` — Store setup, slices, and async logic for apartments.
+  - `types/` — TypeScript type definitions:
+    - `apartment.d.ts` — Types for apartment data and forms.
+  - `public/` — Static assets (images, favicon, etc.).
 - **Other Files:**
-  - `Dockerfile`: For containerizing the frontend.
-  - `package.json`: Dependencies and scripts.
+  - `Dockerfile` — For containerizing the frontend service.
+  - `package.json` — Frontend dependencies and scripts.
+  - `.env` — Environment variables (not committed by default).
 
 ---
 
