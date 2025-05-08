@@ -196,7 +196,7 @@ export default function ApartmentsPage() {
         <Button 
           variant="outline"
           onClick={() => setAddOpen(true)}
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer ml-2 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Apartment
