@@ -18,9 +18,6 @@ COPY . .
 # Build the TypeScript app
 RUN npm run build
 
-# Generate Prisma client
-RUN npx prisma generate
-
 
 ###########################
 # Production Stage
@@ -46,4 +43,4 @@ EXPOSE 8080
 
 USER appuser
 
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "npx prisma db push && npx prisma generate && node dist/main"]
