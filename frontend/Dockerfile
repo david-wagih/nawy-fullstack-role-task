@@ -17,8 +17,6 @@ COPY --link . .
 # Build the Next.js app
 RUN npm run build
 
-# Remove dev dependencies to reduce image size
-RUN npm prune --production
 
 # --- Production Stage ---
 FROM node:${NODE_VERSION}-slim AS runner
@@ -41,8 +39,6 @@ COPY --from=builder /app/lib ./lib
 COPY --from=builder /app/store ./store
 COPY --from=builder /app/types ./types
 
-ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 USER appuser
 
