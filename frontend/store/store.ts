@@ -16,13 +16,16 @@ export const fetchApartments = createAsyncThunk<Apartment[]>(
 
 export const createApartment = createAsyncThunk<Apartment, Partial<Apartment>>(
   'apartments/create',
-  async (apartment) => {
+  async (apartment, { rejectWithValue }) => {
     const res = await fetch(`${BASE_URL}/apartments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(apartment),
     });
     const data = await res.json();
+    if (!data.data) {
+      return rejectWithValue('No apartment returned from API');
+    }
     return data.data;
   }
 );
@@ -71,7 +74,9 @@ const apartmentsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch apartments';
       })
       .addCase(createApartment.fulfilled, (state, action) => {
-        state.items.unshift(action.payload);
+        if (action.payload) {
+          state.items.unshift(action.payload);
+        }
       })
       .addCase(updateApartment.fulfilled, (state, action) => {
         const idx = state.items.findIndex(a => a.id === action.payload.id);
