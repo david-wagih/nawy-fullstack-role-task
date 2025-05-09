@@ -66,3 +66,53 @@
 3. **Access:**
    - Frontend: [http://localhost:3000](http://localhost:3000)
    - Backend API: [http://localhost:8080](http://localhost:8080)
+
+---
+
+## Images Feature and Next.js Optimization
+
+### How Image Uploads and Serving Work
+
+- **Image Uploads:**
+  - Images are uploaded via the backend service and stored in the `/app/uploads/apartments` directory inside the backend container.
+  - This directory is bind-mounted to your host at `./backend/uploads/apartments` for persistence.
+
+- **Serving Images:**
+  - The backend exposes these images at URLs like `http://backend:8080/uploads/apartments/<filename>` (from within Docker) or `http://localhost:8080/uploads/apartments/<filename>` (from your browser on the host).
+
+### Next.js Image Optimization
+
+- The frontend uses Next.js's `<Image />` component for optimized image delivery.
+- **Configuration:**
+  - `frontend/next.config.ts` is set up with `remotePatterns` to allow images from the backend service:
+    ```js
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'http',
+          hostname: 'backend',
+          port: '8080',
+          pathname: '/uploads/apartments/**',
+        },
+      ],
+    },
+    ```
+- **Environment Variables:**
+  - On the server, image URLs are built using `INTERNAL_API_URL` (e.g., `http://backend:8080`).
+  - On the client, image URLs use `NEXT_PUBLIC_API_URL` (e.g., `http://localhost:8080`).
+
+### Docker Considerations
+
+- **Do not use `localhost` for backend URLs in Docker.** Use the Docker Compose service name (`backend`).
+- The frontend and backend must be on the same Docker network (handled automatically by Docker Compose).
+
+### Troubleshooting
+
+- If you see `400 Bad Request` or `INVALID_IMAGE_OPTIMIZE_REQUEST` errors:
+  - Ensure the image URL passed to `<Image />` matches the `remotePatterns` in `next.config.ts`.
+  - Make sure the backend is accessible from the frontend container at the correct URL.
+  - As a workaround, you can add the `unoptimized` prop to `<Image />` to bypass Next.js optimization:
+    ```jsx
+    <Image src={src} alt="..." width={500} height={500} unoptimized />
+    ```
+- For more details, see [Next.js Discussions on image optimization issues](https://github.com/vercel/next.js/discussions/20138).
