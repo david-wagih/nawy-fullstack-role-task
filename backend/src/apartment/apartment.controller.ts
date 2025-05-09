@@ -1,9 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, NotFoundException, UploadedFile, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { ApartmentService } from './apartment.service';
 import { CreateApartmentDto } from './dto/create-apartment.dto';
 import { UpdateApartmentDto } from './dto/update-apartment.dto';
-import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { DeleteApartmentImageDto } from './dto/delete-apartment-image.dto';
+import { ApiTags, ApiOperation, ApiResponse as SwaggerApiResponse, ApiQuery, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ApiResponse } from './entities/apartment.entity';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { File as MulterFile } from 'multer';
 
 @ApiTags('apartments')
 @Controller('apartments')
@@ -91,5 +96,74 @@ export class ApartmentController {
       throw new NotFoundException(new ApiResponse(404, 'Apartment not found', null));
     }
     return new ApiResponse(200, 'Apartment deleted successfully', data);
+  }
+
+  @Post(':id/images')
+  @ApiOperation({ summary: 'Upload images for an apartment' })
+  @SwaggerApiResponse({ status: 200, description: 'Images uploaded successfully.' })
+  @SwaggerApiResponse({ status: 400, description: 'No files uploaded.' })
+  @SwaggerApiResponse({ status: 404, description: 'Apartment not found.' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @UseInterceptors(FilesInterceptor('images', 10, {
+    storage: diskStorage({
+      destination: './uploads/apartments',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + extname(file.originalname));
+      },
+    }),
+  }))
+  async uploadImage(
+    @Param('id') id: string,
+    @UploadedFiles() files: MulterFile[]
+  ) {
+    if (!files || files.length === 0) {
+      throw new NotFoundException(new ApiResponse(400, 'No files uploaded', null));
+    }
+    // Get the apartment
+    const apartment = await this.apartmentService.findOne(id);
+    if (!apartment) {
+      throw new NotFoundException(new ApiResponse(404, 'Apartment not found', null));
+    }
+    // Update images array
+    const imagePaths = files.map(file => `/uploads/apartments/${file.filename}`);
+    const updatedImages = apartment.images ? [...apartment.images, ...imagePaths] : imagePaths;
+    const updatedApartment = await this.apartmentService.update(id, { images: updatedImages });
+    return new ApiResponse(200, 'Images uploaded successfully', updatedApartment);
+  }
+
+  @Delete(':id/images')
+  @ApiOperation({ summary: 'Delete an image from an apartment' })
+  @SwaggerApiResponse({ status: 200, description: 'Image deleted successfully.' })
+  @SwaggerApiResponse({ status: 404, description: 'Apartment or image not found.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: { type: 'string', example: '/uploads/apartments/filename.jpg' },
+      },
+      required: ['image'],
+    },
+  })
+  async deleteImage(@Param('id') id: string, @Body() body: DeleteApartmentImageDto) {
+    const updatedApartment = await this.apartmentService.removeImage(id, body.image);
+    if (!updatedApartment) {
+      throw new NotFoundException(new ApiResponse(404, 'Apartment or image not found', null));
+    }
+    return new ApiResponse(200, 'Image deleted successfully', updatedApartment);
   }
 }

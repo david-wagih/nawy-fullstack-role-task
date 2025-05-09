@@ -10,6 +10,7 @@ export class Apartment {
   description: string;
   createdAt: Date;
   updatedAt: Date;
+  images: string[];
 }
 
 export class ApiResponse<T = any> {

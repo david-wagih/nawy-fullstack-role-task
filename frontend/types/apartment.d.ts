@@ -10,6 +10,7 @@ export interface Apartment {
     description: string;
     createdAt: string;
     updatedAt: string;
+    images: string[];
   }
 
   export interface ApartmentFormValues {

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateApartmentDto } from './dto/create-apartment.dto';
 import { UpdateApartmentDto } from './dto/update-apartment.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ApartmentService {
@@ -36,5 +38,23 @@ export class ApartmentService {
 
   async remove(id: string) {
     return this.prisma.apartment.delete({ where: { id } });
+  }
+
+  async removeImage(id: string, imagePath: string) {
+    // Get the apartment
+    const apartment = await this.findOne(id);
+    if (!apartment) return null;
+    // Remove image from images array
+    const updatedImages = (apartment.images || []).filter(img => img !== imagePath);
+    // Update apartment
+    const updatedApartment = await this.update(id, { images: updatedImages });
+    // Remove file from disk
+    const filePath = path.join(process.cwd(), 'backend', imagePath);
+    fs.unlink(filePath, err => {
+      if (err) {
+        // Optionally log error, but don't throw
+      }
+    });
+    return updatedApartment;
   }
 }

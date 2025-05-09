@@ -2,8 +2,10 @@ import { Apartment } from '@/types/apartment';
 import { configureStore, createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const isServer = typeof window === "undefined";
+const BASE_URL = isServer
+  ? process.env.INTERNAL_API_URL
+  : process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchApartments = createAsyncThunk<Apartment[]>(
   'apartments/fetchAll',

@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 
 export default async function ApartmentDetailsPage({ params }: { params:Promise<{ id: string }>}) {
   const { id } = await params;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apartments/${id}`, { cache: "no-store" });
+  const apiUrl = typeof window === "undefined"
+    ? process.env.INTERNAL_API_URL
+    : process.env.NEXT_PUBLIC_API_URL;
+  console.log('DEBUG: API_URL =', apiUrl);
+  const res = await fetch(`${apiUrl}/apartments/${id}`, { cache: "no-store" });
   if (!res.ok) return notFound();
   const { data: apartment } = await res.json();
 

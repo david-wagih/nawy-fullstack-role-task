@@ -39,6 +39,9 @@ COPY --from=builder /app/lib ./lib
 COPY --from=builder /app/store ./store
 COPY --from=builder /app/types ./types
 
+# Ensure .next/cache/images exists and is owned by appuser
+RUN mkdir -p /app/.next/cache/images && \
+    chown -R 1001:1001 /app/.next
 
 USER appuser
 

@@ -189,6 +189,11 @@ export default function ApartmentsPage() {
     }
   };
 
+  // Handler to refresh apartments after image upload
+  const handleImagesUploaded = () => {
+    dispatch(fetchApartments());
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
@@ -234,6 +239,7 @@ export default function ApartmentsPage() {
         loading={editLoading}
         error={editError}
         initialValues={memoizedEditInitial as Partial<ApartmentFormValues> | undefined}
+        onImagesUploaded={handleImagesUploaded}
       />
       <ApartmentsFilters
         search={search}

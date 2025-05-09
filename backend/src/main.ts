@@ -1,15 +1,22 @@
-
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
     origin: ['http://localhost:3001', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
+  });
+
+  const uploadsPath = join(__dirname, '..', 'uploads');
+  console.log('Serving uploads from:', uploadsPath);
+  app.useStaticAssets(uploadsPath, {
+    prefix: '/uploads',
   });
 
   const config = new DocumentBuilder()

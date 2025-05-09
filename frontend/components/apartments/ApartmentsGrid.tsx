@@ -11,6 +11,7 @@ export interface ApartmentsGridProps {
     bathrooms: number;
     price: number;
     description: string;
+    images?: string[];
   }>;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -22,7 +23,7 @@ export default function ApartmentsGrid({ apartments, onEdit, onDelete }: Apartme
       {apartments.map((apt) => (
         <ApartmentCard
           key={apt.id}
-          apartment={apt}
+          apartment={{ ...apt }}
           onEdit={onEdit ? () => onEdit(apt.id) : undefined}
           onDelete={onDelete ? () => onDelete(apt.id) : undefined}
         />

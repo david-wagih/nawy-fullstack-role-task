@@ -7,4 +7,5 @@ export class CreateApartmentDto {
   bathrooms: number;
   price: number;
   description: string;
+  images?: string[];
 }
